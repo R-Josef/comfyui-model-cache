@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.comfyui</groupId>
+  <artifactId>comfyui-model-cache</artifactId>
+  <version>1.0.0</version>
+  <packaging>jar</packaging>
+
+  <name>ComfyUI 模型缓存</name>
+  <description>把常用的 ComfyUI 模型放到固态硬盘，用符号链接 / 目录联接接回来</description>
+
+  <properties>
+    <!-- 源码、POM、打包产物全部按 UTF-8 处理，避免出现乱码文件名或乱码界面 -->
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
+    <maven.compiler.release>21</maven.compiler.release>
+
+    <main.class>com.comfyui.cache.Main</main.class>
+    <selfcheck.class>com.comfyui.cache.SelfCheck</selfcheck.class>
+
+    <maven.compiler.plugin.version>3.13.0</maven.compiler.plugin.version>
+    <maven.jar.plugin.version>3.4.1</maven.jar.plugin.version>
+    <exec.plugin.version>3.5.0</exec.plugin.version>
+  </properties>
+
+  <build>
+    <!-- 生成的 jar 名：target/ComfyUI模型缓存.jar -->
+    <finalName>ComfyUI模型缓存</finalName>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven.compiler.plugin.version}</version>
+        <configuration>
+          <encoding>UTF-8</encoding>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>${maven.jar.plugin.version}</version>
+        <configuration>
+          <archive>
+            <manifest>
+              <mainClass>${main.class}</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+
+      <!--
+        自测：mvn verify 时在独立的 JVM 里跑一遍真实文件系统测试。
+        自测代码在 src/test/java 下，不会被打进 jar。
+      -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>${exec.plugin.version}</version>
+        <configuration>
+          <classpathScope>test</classpathScope>
+        </configuration>
+        <executions>
+          <execution>
+            <id>self-check</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>java</executable>
+              <arguments>
+                <argument>-classpath</argument>
+                <classpath/>
+                <argument>${selfcheck.class}</argument>
+              </arguments>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
