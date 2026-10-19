@@ -7,11 +7,19 @@
 
   <groupId>com.comfyui</groupId>
   <artifactId>comfyui-model-cache</artifactId>
-  <version>1.0.0</version>
+  <version>1.0</version>
   <packaging>jar</packaging>
 
   <name>ComfyUI 模型缓存</name>
   <description>把常用的 ComfyUI 模型放到固态硬盘，用符号链接 / 目录联接接回来</description>
+
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <url>https://opensource.org/licenses/MIT</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
 
   <properties>
     <!-- 源码、POM、打包产物全部按 UTF-8 处理，避免出现乱码文件名或乱码界面 -->
@@ -26,6 +34,7 @@
     <maven.compiler.plugin.version>3.13.0</maven.compiler.plugin.version>
     <maven.jar.plugin.version>3.4.1</maven.jar.plugin.version>
     <exec.plugin.version>3.5.0</exec.plugin.version>
+    <maven.assembly.plugin.version>3.7.1</maven.assembly.plugin.version>
   </properties>
 
   <build>
@@ -86,4 +95,40 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <!--
+      打发布包：mvn -Prelease package
+      产物：target/ComfyUI-Model-Cache-v1.0.zip
+      解压后是一个文件夹，里面有 jar、启动脚本和说明文档。
+    -->
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <version>${maven.assembly.plugin.version}</version>
+            <configuration>
+              <finalName>ComfyUI-Model-Cache-v${project.version}</finalName>
+              <appendAssemblyId>false</appendAssemblyId>
+              <descriptors>
+                <descriptor>src/assembly/release.xml</descriptor>
+              </descriptors>
+            </configuration>
+            <executions>
+              <execution>
+                <id>release-zip</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>single</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

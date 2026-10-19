@@ -1,20 +1,26 @@
 @echo off
-setlocal
+setlocal EnableExtensions
 chcp 65001 >nul
 cd /d "%~dp0"
 
-rem The jar name is Chinese; use a wildcard so this file stays ASCII-only
-rem and cannot be broken by console code pages.
-set "JAR="
-if exist "target\*.jar" for %%f in ("target\*.jar") do set "JAR=%%~ff"
-if not defined JAR if exist "*.jar" for %%f in ("*.jar") do set "JAR=%%~ff"
+call "%~dp0_findjava.bat"
+if errorlevel 1 goto :fail
 
+rem 优先用 target 目录里的 jar（Maven 构建产物），其次用本目录的 jar（Release 包）
+set "JAR="
+for %%f in ("%~dp0target\*.jar") do set "JAR=%%~ff"
+if not defined JAR for %%f in ("%~dp0*.jar") do set "JAR=%%~ff"
 if not defined JAR (
     echo.
-    echo 未找到 jar 文件，请先在项目目录里执行： mvn package
-    echo.
-    pause
-    exit /b 1
+    echo 找不到 jar 文件。
+    echo 请把 ComfyUI模型缓存.jar 放在本文件夹，或者先在源码目录执行 mvn package。
+    goto :fail
 )
 
-start "" javaw -jar "%JAR%" %*
+start "" "%JAVAW_EXE%" -jar "%JAR%" %*
+exit /b 0
+
+:fail
+echo.
+pause
+exit /b 1

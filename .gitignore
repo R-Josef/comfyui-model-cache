@@ -26,8 +26,16 @@ Desktop.ini
 .scratch/
 .probe/
 
+# 启动脚本自动下载的 Java 运行时
+jdk-21/
+.jdk21-temp/
+.jdk21-download.zip
+
 # 运行时生成的数据（如果 --db 指到项目里）
 cache-db.json
 cache-db.json.tmp
 *.log
 *.status
+
+# 发布包
+*.zip

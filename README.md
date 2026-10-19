@@ -17,24 +17,41 @@ through symbolic links (or Windows directory junctions).
 
 ## 环境要求
 
-- JDK 21（`java` 在 PATH 中即可）
-- Maven 3.9 或更高版本（只有构建时需要）
+- **运行**：Windows 10 / 11。不需要预先安装 Java：脚本检测不到 Java 21 或更高版本时，
+  会自动下载 Java 21 运行环境并解压到程序目录下的 `jdk-21`。
+- **构建**：JDK 21 或更高版本，Maven 3.9 或更高版本。
 
 ## 构建
 
 构建前请先关闭正在运行的程序：Windows 会把 `target` 里的 jar 锁住，导致打包失败。
 
 ```powershell
-mvn package     # 编译 + 打包，产物：target\ComfyUI模型缓存.jar
-mvn verify      # 额外跑一遍自测（57 项真实文件系统检查）
-mvn clean       # 清理
+mvn package            # 编译 + 打包，产物：target\ComfyUI模型缓存.jar
+mvn verify             # 额外跑一遍自测（57 项真实文件系统检查）
+mvn -Prelease package  # 额外生成发布包：target\ComfyUI-Model-Cache-v1.0.zip
+mvn clean              # 清理
 ```
 
 ## 运行
 
-- 双击 `run.bat`：后台启动，自动寻找 `target` 目录下的 jar；
-- 双击 `run_console.bat`：带控制台启动，出错时能看到输出；
-- 也可以直接双击 `target\ComfyUI模型缓存.jar`。
+- 双击 `run.bat`：后台启动，没有控制台窗口；
+- 双击 `run_console.bat`：带控制台启动，出错时能看到输出。
+
+两个脚本的启动逻辑是一样的：
+
+1. 先找程序目录下的 `jdk-21\bin\java.exe`，再找系统 `PATH` 里的 Java，要求版本 ≥ 21；
+2. 都找不到时自动运行 `setup-java.bat`：从 Adoptium 下载 Java 21 运行环境（约 50 MB），
+   解压到程序目录的 `jdk-21`，然后继续启动；
+3. 按 `target\*.jar` → 当前目录 `*.jar` 的顺序找程序包。
+   所以源码目录里直接运行和 Release 解压即用，用的是同一套脚本。
+
+`setup-java.bat` 也可以单独双击运行，提前把 Java 准备好。
+如需从镜像下载，可以先把 `COMFYUI_JAVA_URL` 环境变量设为一个 JDK / JRE 的 zip 地址。
+
+## 从 Release 安装
+
+1. 下载 `ComfyUI-Model-Cache-v1.0.zip` 并解压，得到一个 `ComfyUI-Model-Cache-v1.0` 文件夹；
+2. 双击文件夹里的 `run.bat`。第一次运行如果缺少 Java 21，会先自动下载，完成后自动启动。
 
 ## 使用
 
@@ -114,6 +131,9 @@ javaw -jar "ComfyUI模型缓存.jar" --db=D:\cfg\cache-db.json
 ```
 pom.xml                                  Maven 构建（UTF-8、Java 21、jar 主类）
 run.bat / run_console.bat                启动脚本
+setup-java.bat                           自动下载并解压 Java 21 运行环境
+_findjava.bat                            启动脚本调用的 Java 检测逻辑
+src/assembly/release.xml                 Release zip 的打包描述
 src/main/java/com/comfyui/cache/         核心逻辑
     CacheEngine.java                     缓存 / 取消缓存 / 状态校验，含失败回滚
     LinkSupport.java                     符号链接、目录联接、硬链接的能力探测与创建

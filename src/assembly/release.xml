@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.2.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.2.0 https://maven.apache.org/xsd/assembly-2.2.0.xsd">
+
+  <id>release</id>
+
+  <formats>
+    <format>zip</format>
+  </formats>
+
+  <includeBaseDirectory>true</includeBaseDirectory>
+  <baseDirectory>ComfyUI-Model-Cache-v${project.version}</baseDirectory>
+
+  <fileSets>
+    <!-- 启动脚本和文档，保持原始内容（bat 的 CRLF 换行不能被改动） -->
+    <fileSet>
+      <directory>${project.basedir}</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+        <include>run.bat</include>
+        <include>run_console.bat</include>
+        <include>setup-java.bat</include>
+        <include>_findjava.bat</include>
+        <include>README.md</include>
+        <include>LICENSE</include>
+      </includes>
+      <filtered>false</filtered>
+    </fileSet>
+
+    <!-- 编译好的 jar -->
+    <fileSet>
+      <directory>${project.build.directory}</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+        <include>${project.build.finalName}.jar</include>
+      </includes>
+      <filtered>false</filtered>
+    </fileSet>
+  </fileSets>
+</assembly>
